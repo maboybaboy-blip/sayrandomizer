@@ -6,16 +6,16 @@
     <title>🎯 Say-Randomizer | Рандомайзер + Трекер</title>
     
     <!-- ===== FAVICON ===== -->
-    <link rel="icon" type="image/svg+xml" href="https://i.imgur.com/kSU3BRx.png">
+    <link rel="icon" type="image/png" href="https://i.imgur.com/kSU3BRx.png">
     <link rel="apple-touch-icon" href="https://i.imgur.com/kSU3BRx.png">
     
-    <!-- ===== GOOGLE RECAPTCHA v3 ===== -->
-    <script src="https://www.google.com/recaptcha/api.js?render=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></script>
+    <!-- ===== hCaptcha ===== -->
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     
     <!-- ===== FONT AWESOME 6 ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- ===== HTML2CANVAS для скриншотов ===== -->
+    <!-- ===== HTML2CANVAS ===== -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -449,8 +449,8 @@
             font-size: 1.2rem;
         }
 
-        /* ===== RECAPTCHA СТАТУС ===== */
-        .recaptcha-status {
+        /* ===== hCaptcha статус ===== */
+        .hcaptcha-status {
             display: flex;
             align-items: center;
             justify-content: flex-end;
@@ -461,23 +461,23 @@
             padding: 0 6px;
         }
 
-        .recaptcha-status .recaptcha-dot {
+        .hcaptcha-status .hcaptcha-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             display: inline-block;
         }
 
-        .recaptcha-status .recaptcha-dot.ready {
+        .hcaptcha-status .hcaptcha-dot.ready {
             background: #4caf50;
         }
 
-        .recaptcha-status .recaptcha-dot.loading {
+        .hcaptcha-status .hcaptcha-dot.loading {
             background: #ff9800;
             animation: dotPulse 1s ease-in-out infinite;
         }
 
-        .recaptcha-status .recaptcha-dot.error {
+        .hcaptcha-status .hcaptcha-dot.error {
             background: #ff6b6b;
         }
 
@@ -1238,7 +1238,7 @@
             .tabs .tab-btn { padding: 10px 16px; font-size: 0.8rem; }
             .tabs .tab-btn span { display: none; }
             .sub-notification { bottom: 16px; right: 16px; left: 16px; max-width: none; }
-            .recaptcha-status { justify-content: flex-start; }
+            .hcaptcha-status { justify-content: flex-start; }
         }
 
         @media (max-width: 480px) {
@@ -1329,10 +1329,10 @@
                         <i class="fas fa-shield-alt"></i> RANDOMIZE!
                     </button>
                 </div>
-                <!-- ===== RECAPTCHA СТАТУС ===== -->
-                <div class="recaptcha-status">
-                    <span class="recaptcha-dot loading" id="recaptchaDot"></span>
-                    <span id="recaptchaStatus">Загрузка reCAPTCHA...</span>
+                <!-- ===== hCaptcha статус ===== -->
+                <div class="hcaptcha-status">
+                    <span class="hcaptcha-dot loading" id="hcaptchaDot"></span>
+                    <span id="hcaptchaStatus">Загрузка hCaptcha...</span>
                 </div>
             </div>
 
@@ -1404,7 +1404,7 @@
             <i class="fas fa-shield-alt"></i>
             <i class="fab fa-youtube" style="color: var(--youtube);"></i>
         </div>
-        Say-Randomizer · Защищено reCAPTCHA<br>
+        Say-Randomizer · Защищено hCaptcha<br>
         <a href="#" onclick="event.preventDefault(); location.reload();"><i class="fas fa-sync-alt"></i> Обновить</a>
     </div>
 </div>
@@ -1471,7 +1471,7 @@
         <div class="scr-date"><i class="fas fa-calendar-alt"></i> <span id="scrDate">06/09/2026 01:17:57</span></div>
         <div class="scr-likes"><i class="fas fa-heart"></i> <span id="scrLikes">0</span></div>
     </div>
-    <div class="scr-watermark"><i class="fas fa-shield-alt"></i> Защищено reCAPTCHA · Say<span>Randomizer</span></div>
+    <div class="scr-watermark"><i class="fas fa-shield-alt"></i> Защищено hCaptcha · Say<span>Randomizer</span></div>
 </div>
 
 <script>
@@ -1483,12 +1483,12 @@
         const APP_NAME = 'Say-Randomizer';
         
         // =============================================
-//  RECAPTCHA НАСТРОЙКИ (ТВОЙ НОВЫЙ КЛЮЧ)
-// =============================================
-const RECAPTCHA_SITE_KEY = '6LcEq6wtAAAAAO_AlEzBDqOworXYitSWsvjftQgI';
-let recaptchaReady = false;
-let recaptchaToken = null;
-// =============================================
+        //  hCaptcha НАСТРОЙКИ (ТВОЙ КЛЮЧ)
+        // =============================================
+        const HCAPTCHA_SITE_KEY = '615e3286-5c52-49ce-8846-f136e560739c';
+        let hcaptchaReady = false;
+        let hcaptchaToken = null;
+        // =============================================
 
         // =============================================
         //  ФУНКЦИЯ ФОРМАТИРОВАНИЯ ЧИСЕЛ
@@ -1498,14 +1498,114 @@ let recaptchaToken = null;
         }
 
         // =============================================
-        //  RECAPTCHA СТАТУС
+        //  hCaptcha СТАТУС
         // =============================================
-        const recaptchaDot = document.getElementById('recaptchaDot');
-        const recaptchaStatus = document.getElementById('recaptchaStatus');
+        const hcaptchaDot = document.getElementById('hcaptchaDot');
+        const hcaptchaStatus = document.getElementById('hcaptchaStatus');
 
-        function updateRecaptchaStatus(status, message) {
-            recaptchaDot.className = 'recaptcha-dot ' + status;
-            recaptchaStatus.textContent = message;
+        function updateHcaptchaStatus(status, message) {
+            if (hcaptchaDot) {
+                hcaptchaDot.className = 'hcaptcha-dot ' + status;
+            }
+            if (hcaptchaStatus) {
+                hcaptchaStatus.textContent = message;
+            }
+        }
+
+        // =============================================
+        //  ПОЛУЧЕНИЕ hCaptcha ТОКЕНА
+        // =============================================
+        function getHcaptchaToken() {
+            return new Promise((resolve, reject) => {
+                if (!window.hcaptcha) {
+                    reject(new Error('hCaptcha не загружена'));
+                    return;
+                }
+                
+                // Если уже есть токен, возвращаем его
+                if (hcaptchaToken) {
+                    resolve(hcaptchaToken);
+                    return;
+                }
+                
+                // Создаём виджет
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.top = '-9999px';
+                container.style.left = '-9999px';
+                document.body.appendChild(container);
+                
+                window.hcaptcha.render(container, {
+                    sitekey: HCAPTCHA_SITE_KEY,
+                    size: 'invisible',
+                    callback: function(token) {
+                        hcaptchaToken = token;
+                        hcaptchaReady = true;
+                        updateHcaptchaStatus('ready', '✅ hCaptcha готова');
+                        resolve(token);
+                        container.remove();
+                    },
+                    'expired-callback': function() {
+                        hcaptchaToken = null;
+                        hcaptchaReady = false;
+                        updateHcaptchaStatus('error', '❌ Токен истёк');
+                    },
+                    'error-callback': function() {
+                        updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
+                        reject(new Error('Ошибка hCaptcha'));
+                        container.remove();
+                    }
+                });
+                
+                // Запускаем проверку
+                setTimeout(() => {
+                    try {
+                        window.hcaptcha.execute(container);
+                    } catch (e) {
+                        reject(e);
+                    }
+                }, 500);
+            });
+        }
+
+        // =============================================
+        //  ИНИЦИАЛИЗАЦИЯ hCaptcha
+        // =============================================
+        function initHcaptcha() {
+            updateHcaptchaStatus('loading', '⏳ Инициализация hCaptcha...');
+            
+            // Проверяем, загрузилась ли hCaptcha
+            if (typeof window.hcaptcha !== 'undefined') {
+                getHcaptchaToken()
+                    .then(() => {
+                        updateHcaptchaStatus('ready', '✅ hCaptcha готова');
+                    })
+                    .catch(() => {
+                        updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
+                    });
+            } else {
+                // Ждём загрузки
+                const checkInterval = setInterval(() => {
+                    if (typeof window.hcaptcha !== 'undefined') {
+                        clearInterval(checkInterval);
+                        getHcaptchaToken()
+                            .then(() => {
+                                updateHcaptchaStatus('ready', '✅ hCaptcha готова');
+                            })
+                            .catch(() => {
+                                updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
+                            });
+                    }
+                }, 500);
+                
+                // Таймаут через 10 секунд
+                setTimeout(() => {
+                    clearInterval(checkInterval);
+                    if (!hcaptchaReady) {
+                        updateHcaptchaStatus('error', '❌ hCaptcha не загрузилась');
+                    }
+                }, 10000);
+            }
         }
 
         // =============================================
@@ -1528,32 +1628,6 @@ let recaptchaToken = null;
                 });
             });
         });
-
-        // =============================================
-        //  ПОЛУЧЕНИЕ RECAPTCHA ТОКЕНА
-        // =============================================
-        function getRecaptchaToken() {
-            return new Promise((resolve, reject) => {
-                if (!window.grecaptcha) {
-                    reject(new Error('reCAPTCHA не загружена'));
-                    return;
-                }
-                
-                window.grecaptcha.ready(function() {
-                    window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' })
-                        .then(function(token) {
-                            recaptchaToken = token;
-                            recaptchaReady = true;
-                            updateRecaptchaStatus('ready', '✅ reCAPTCHA готова');
-                            resolve(token);
-                        })
-                        .catch(function(error) {
-                            updateRecaptchaStatus('error', '❌ Ошибка reCAPTCHA');
-                            reject(error);
-                        });
-                });
-            });
-        }
 
         // =============================================
         //  РАНДОМАЙЗЕР КОММЕНТАРИЕВ
@@ -1777,7 +1851,7 @@ let recaptchaToken = null;
 
         function copyResult() {
             if (!lastWinner) return;
-            const text = `🏆 ПОБЕДИТЕЛЬ КОНКУРСА\n\n${lastWinner.author || 'Аноним'}\n"${lastWinner.text || '—'}"\n❤️ ${lastWinner.likes || 0} лайков\n${formatDate(lastWinner.publishedAt)}\n\nrandomized by Say-Randomizer\nЗащищено reCAPTCHA`;
+            const text = `🏆 ПОБЕДИТЕЛЬ КОНКУРСА\n\n${lastWinner.author || 'Аноним'}\n"${lastWinner.text || '—'}"\n❤️ ${lastWinner.likes || 0} лайков\n${formatDate(lastWinner.publishedAt)}\n\nrandomized by Say-Randomizer\nЗащищено hCaptcha`;
             navigator.clipboard.writeText(text).then(() => {
                 copyResultBtn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
                 setTimeout(() => copyResultBtn.innerHTML = '<i class="fas fa-copy"></i> Копировать', 2000);
@@ -1899,23 +1973,23 @@ let recaptchaToken = null;
             if (isLoading) return;
             
             // =============================================
-            //  ПРОВЕРКА RECAPTCHA
+            //  ПРОВЕРКА hCaptcha
             // =============================================
-            if (!recaptchaReady) {
+            if (!hcaptchaReady) {
                 setStatus('⏳ Подождите, идёт проверка безопасности...', false, true);
                 try {
-                    await getRecaptchaToken();
+                    await getHcaptchaToken();
                 } catch (error) {
-                    setStatus('❌ Ошибка проверки reCAPTCHA. Попробуйте обновить страницу.', true);
+                    setStatus('❌ Ошибка проверки hCaptcha. Попробуйте обновить страницу.', true);
                     return;
                 }
             }
             
             // Обновляем токен перед каждым запросом
             try {
-                await getRecaptchaToken();
+                await getHcaptchaToken();
             } catch (error) {
-                setStatus('❌ Ошибка обновления reCAPTCHA. Попробуйте обновить страницу.', true);
+                setStatus('❌ Ошибка обновления hCaptcha. Попробуйте обновить страницу.', true);
                 return;
             }
 
@@ -1998,35 +2072,9 @@ let recaptchaToken = null;
         videoUrlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); randomizeBtn.click(); } });
 
         // =============================================
-        //  RECAPTCHA ИНИЦИАЛИЗАЦИЯ
+        //  ИНИЦИАЛИЗАЦИЯ hCaptcha
         // =============================================
-        // Ждём загрузки reCAPTCHA
-        let recaptchaInitAttempts = 0;
-        const maxRecaptchaAttempts = 10;
-
-        function initRecaptcha() {
-            recaptchaInitAttempts++;
-            
-            if (typeof window.grecaptcha !== 'undefined' && window.grecaptcha.ready) {
-                updateRecaptchaStatus('loading', '⏳ Инициализация reCAPTCHA...');
-                getRecaptchaToken()
-                    .then(() => {
-                        updateRecaptchaStatus('ready', '✅ reCAPTCHA готова');
-                    })
-                    .catch(() => {
-                        updateRecaptchaStatus('error', '❌ Ошибка reCAPTCHA');
-                    });
-            } else if (recaptchaInitAttempts < maxRecaptchaAttempts) {
-                // Повторяем попытку через 500ms
-                setTimeout(initRecaptcha, 500);
-            } else {
-                updateRecaptchaStatus('error', '❌ reCAPTCHA не загрузилась');
-                console.warn('reCAPTCHA не загрузилась после нескольких попыток');
-            }
-        }
-
-        // Запускаем инициализацию через 1 секунду после загрузки страницы
-        setTimeout(initRecaptcha, 1000);
+        setTimeout(initHcaptcha, 1000);
 
         // =============================================
         //  ТРЕКЕР ПОДПИСЧИКОВ
@@ -2211,7 +2259,7 @@ let recaptchaToken = null;
 
         console.log('🎯 Say-Randomizer загружен!');
         console.log('🔑 API Key:', YOUTUBE_API_KEY ? '✅ установлен' : '❌ не установлен');
-        console.log('🛡️ reCAPTCHA: ' + (recaptchaReady ? '✅ готова' : '⏳ загрузка...'));
+        console.log('🛡️ hCaptcha: ⏳ загрузка...');
 
         setTimeout(() => {
             startYoutubeTracking();
