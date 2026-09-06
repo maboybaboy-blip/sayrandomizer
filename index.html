@@ -449,16 +449,52 @@
             font-size: 1.2rem;
         }
 
-        /* ===== hCaptcha статус ===== */
+        /* ===== Видимая hCaptcha ===== */
+        .hcaptcha-container {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0 8px;
+            padding: 10px;
+            background: rgba(20, 20, 20, 0.4);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            min-height: 80px;
+            align-items: center;
+        }
+
+        .hcaptcha-container .hcaptcha-placeholder {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hcaptcha-container .hcaptcha-placeholder i {
+            font-size: 1.5rem;
+            color: var(--youtube);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hcaptcha-container #hcaptcha-widget {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
         .hcaptcha-status {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: center;
             gap: 8px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            margin-top: 6px;
-            padding: 0 6px;
+            margin-top: 4px;
         }
 
         .hcaptcha-status .hcaptcha-dot {
@@ -481,11 +517,16 @@
             background: #ff6b6b;
         }
 
+        .hcaptcha-status .hcaptcha-dot.verified {
+            background: #4caf50;
+            box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
+        }
+
         .status-bar {
             background: rgba(20, 20, 20, 0.8);
             border-radius: var(--radius-sm);
             padding: 18px 24px;
-            margin: 22px 0 18px;
+            margin: 12px 0 18px;
             border-left: 4px solid var(--youtube);
             min-height: 64px;
             display: flex;
@@ -1238,7 +1279,7 @@
             .tabs .tab-btn { padding: 10px 16px; font-size: 0.8rem; }
             .tabs .tab-btn span { display: none; }
             .sub-notification { bottom: 16px; right: 16px; left: 16px; max-width: none; }
-            .hcaptcha-status { justify-content: flex-start; }
+            .hcaptcha-container { padding: 6px; min-height: 60px; }
         }
 
         @media (max-width: 480px) {
@@ -1252,6 +1293,7 @@
             .subscriber-display .counter-wrapper .counter-number { font-size: 2.6rem; }
             .tabs { gap: 4px; padding: 4px; }
             .tabs .tab-btn { padding: 8px 12px; font-size: 0.7rem; }
+            .hcaptcha-container { padding: 4px; min-height: 50px; }
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -1329,10 +1371,20 @@
                         <i class="fas fa-shield-alt"></i> RANDOMIZE!
                     </button>
                 </div>
-                <!-- ===== hCaptcha статус ===== -->
+
+                <!-- ===== ВИДИМАЯ hCaptcha ===== -->
+                <div class="hcaptcha-container">
+                    <div id="hcaptcha-widget">
+                        <div class="hcaptcha-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Загрузка hCaptcha...</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="hcaptcha-status">
                     <span class="hcaptcha-dot loading" id="hcaptchaDot"></span>
-                    <span id="hcaptchaStatus">Загрузка hCaptcha...</span>
+                    <span id="hcaptchaStatus">Ожидание проверки...</span>
                 </div>
             </div>
 
@@ -1483,11 +1535,12 @@
         const APP_NAME = 'Say-Randomizer';
         
         // =============================================
-        //  hCaptcha НАСТРОЙКИ (ТВОЙ КЛЮЧ)
+        //  hCaptcha НАСТРОЙКИ (ОБНОВЛЁННЫЙ КЛЮЧ)
         // =============================================
-        const HCAPTCHA_SITE_KEY = '615e3286-5c52-49ce-8846-f136e560739c';
+        const HCAPTCHA_SITE_KEY = '56a8a9d6-8f22-4e0a-ae40-d6a6e0148860';
         let hcaptchaReady = false;
         let hcaptchaToken = null;
+        let hcaptchaWidgetId = null;
         // =============================================
 
         // =============================================
@@ -1513,98 +1566,56 @@
         }
 
         // =============================================
-        //  ПОЛУЧЕНИЕ hCaptcha ТОКЕНА
-        // =============================================
-        function getHcaptchaToken() {
-            return new Promise((resolve, reject) => {
-                if (!window.hcaptcha) {
-                    reject(new Error('hCaptcha не загружена'));
-                    return;
-                }
-                
-                // Если уже есть токен, возвращаем его
-                if (hcaptchaToken) {
-                    resolve(hcaptchaToken);
-                    return;
-                }
-                
-                // Создаём виджет
-                const container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.top = '-9999px';
-                container.style.left = '-9999px';
-                document.body.appendChild(container);
-                
-                window.hcaptcha.render(container, {
-                    sitekey: HCAPTCHA_SITE_KEY,
-                    size: 'invisible',
-                    callback: function(token) {
-                        hcaptchaToken = token;
-                        hcaptchaReady = true;
-                        updateHcaptchaStatus('ready', '✅ hCaptcha готова');
-                        resolve(token);
-                        container.remove();
-                    },
-                    'expired-callback': function() {
-                        hcaptchaToken = null;
-                        hcaptchaReady = false;
-                        updateHcaptchaStatus('error', '❌ Токен истёк');
-                    },
-                    'error-callback': function() {
-                        updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
-                        reject(new Error('Ошибка hCaptcha'));
-                        container.remove();
-                    }
-                });
-                
-                // Запускаем проверку
-                setTimeout(() => {
-                    try {
-                        window.hcaptcha.execute(container);
-                    } catch (e) {
-                        reject(e);
-                    }
-                }, 500);
-            });
-        }
-
-        // =============================================
-        //  ИНИЦИАЛИЗАЦИЯ hCaptcha
+        //  ИНИЦИАЛИЗАЦИЯ ВИДИМОЙ hCaptcha
         // =============================================
         function initHcaptcha() {
-            updateHcaptchaStatus('loading', '⏳ Инициализация hCaptcha...');
+            const widgetContainer = document.getElementById('hcaptcha-widget');
             
-            // Проверяем, загрузилась ли hCaptcha
-            if (typeof window.hcaptcha !== 'undefined') {
-                getHcaptchaToken()
-                    .then(() => {
-                        updateHcaptchaStatus('ready', '✅ hCaptcha готова');
-                    })
-                    .catch(() => {
-                        updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
+            // Очищаем контейнер
+            widgetContainer.innerHTML = '';
+            
+            try {
+                if (typeof window.hcaptcha !== 'undefined') {
+                    hcaptchaWidgetId = window.hcaptcha.render(widgetContainer, {
+                        sitekey: HCAPTCHA_SITE_KEY,
+                        theme: 'dark',
+                        size: 'normal',
+                        callback: function(token) {
+                            hcaptchaToken = token;
+                            hcaptchaReady = true;
+                            updateHcaptchaStatus('verified', '✅ Проверка пройдена!');
+                            hcaptchaDot.className = 'hcaptcha-dot verified';
+                        },
+                        'expired-callback': function() {
+                            hcaptchaToken = null;
+                            hcaptchaReady = false;
+                            updateHcaptchaStatus('error', '❌ Токен истёк, обновите страницу');
+                        },
+                        'error-callback': function() {
+                            updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
+                        }
                     });
-            } else {
-                // Ждём загрузки
-                const checkInterval = setInterval(() => {
-                    if (typeof window.hcaptcha !== 'undefined') {
-                        clearInterval(checkInterval);
-                        getHcaptchaToken()
-                            .then(() => {
-                                updateHcaptchaStatus('ready', '✅ hCaptcha готова');
-                            })
-                            .catch(() => {
-                                updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
-                            });
-                    }
-                }, 500);
-                
-                // Таймаут через 10 секунд
-                setTimeout(() => {
-                    clearInterval(checkInterval);
-                    if (!hcaptchaReady) {
-                        updateHcaptchaStatus('error', '❌ hCaptcha не загрузилась');
-                    }
-                }, 10000);
+                    updateHcaptchaStatus('ready', '✅ Отметьте "Я не робот"');
+                    hcaptchaDot.className = 'hcaptcha-dot ready';
+                } else {
+                    // Ждём загрузки hCaptcha
+                    widgetContainer.innerHTML = `
+                        <div class="hcaptcha-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Загрузка hCaptcha...</span>
+                        </div>
+                    `;
+                    setTimeout(initHcaptcha, 1000);
+                }
+            } catch (error) {
+                console.error('Ошибка инициализации hCaptcha:', error);
+                widgetContainer.innerHTML = `
+                    <div class="hcaptcha-placeholder" style="color: #ff6b6b;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Ошибка загрузки hCaptcha. Обновите страницу.</span>
+                    </div>
+                `;
+                updateHcaptchaStatus('error', '❌ Ошибка загрузки');
             }
         }
 
@@ -1975,21 +1986,9 @@
             // =============================================
             //  ПРОВЕРКА hCaptcha
             // =============================================
-            if (!hcaptchaReady) {
-                setStatus('⏳ Подождите, идёт проверка безопасности...', false, true);
-                try {
-                    await getHcaptchaToken();
-                } catch (error) {
-                    setStatus('❌ Ошибка проверки hCaptcha. Попробуйте обновить страницу.', true);
-                    return;
-                }
-            }
-            
-            // Обновляем токен перед каждым запросом
-            try {
-                await getHcaptchaToken();
-            } catch (error) {
-                setStatus('❌ Ошибка обновления hCaptcha. Попробуйте обновить страницу.', true);
+            if (!hcaptchaReady || !hcaptchaToken) {
+                setStatus('⏳ Пожалуйста, пройдите проверку "Я не робот"', false, true);
+                updateHcaptchaStatus('loading', '⏳ Ожидание проверки...');
                 return;
             }
 
@@ -2259,7 +2258,7 @@
 
         console.log('🎯 Say-Randomizer загружен!');
         console.log('🔑 API Key:', YOUTUBE_API_KEY ? '✅ установлен' : '❌ не установлен');
-        console.log('🛡️ hCaptcha: ⏳ загрузка...');
+        console.log('🛡️ hCaptcha ключ:', HCAPTCHA_SITE_KEY);
 
         setTimeout(() => {
             startYoutubeTracking();
