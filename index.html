@@ -447,7 +447,6 @@
             box-shadow: 0 4px 15px rgba(255, 0, 51, 0.25);
         }
 
-        /* ===== HCAPTCHA (ТОЛЬКО ВИДЖЕТ, БЕЗ ТЕКСТА) ===== */
         .hcaptcha-container {
             display: flex;
             justify-content: center;
@@ -736,6 +735,12 @@
             border: 1px solid var(--border-color);
             transition: var(--transition);
             animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .modal-window .winner-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--youtube);
+            transform: translateX(4px);
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(-20px); }
@@ -778,6 +783,18 @@
             font-weight: 600;
             color: #fff;
             font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .modal-window .winner-item .winner-name .channel-link {
+            color: var(--youtube);
+            font-size: 0.7rem;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .modal-window .winner-item:hover .winner-name .channel-link {
+            opacity: 1;
         }
         .modal-window .winner-item .winner-comment {
             color: var(--text-secondary);
@@ -1107,7 +1124,6 @@
                     </div>
                 </div>
 
-                <!-- ===== ТОЛЬКО ВИДЖЕТ HCAPTCHA (БЕЗ ТЕКСТА) ===== -->
                 <div class="hcaptcha-container">
                     <div id="hcaptcha-widget"></div>
                 </div>
@@ -1228,7 +1244,7 @@
         // =============================================
 
         // =============================================
-        //  АВАТАРКИ (YouTube)
+        //  АВАТАРКИ И ПЕРЕХОД НА КАНАЛ
         // =============================================
         async function fetchYouTubeAvatar(channelId) {
             if (!channelId) return null;
@@ -1347,6 +1363,22 @@
         }
 
         // =============================================
+        //  ПЕРЕХОД НА КАНАЛ YOUTUBE
+        // =============================================
+        function openYouTubeChannel(channelId, authorName) {
+            if (!channelId) {
+                // Если нет channelId, пробуем поискать по имени
+                const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
+                window.open(searchUrl, '_blank');
+                return;
+            }
+            
+            // Открываем канал по ID
+            const channelUrl = `https://www.youtube.com/channel/${channelId}`;
+            window.open(channelUrl, '_blank');
+        }
+
+        // =============================================
         //  ФУНКЦИЯ ФОРМАТИРОВАНИЯ
         // =============================================
         function formatNumber(num) {
@@ -1436,7 +1468,7 @@
         });
 
         // =============================================
-        //  HCAPTCHA (БЕЗ ТЕКСТА)
+        //  HCAPTCHA
         // =============================================
         let hcaptchaReady = false;
         let hcaptchaToken = null;
@@ -1460,9 +1492,7 @@
                             hcaptchaToken = null;
                             hcaptchaReady = false;
                         },
-                        'error-callback': function() {
-                            // Просто игнорируем
-                        }
+                        'error-callback': function() {}
                     });
                 } else {
                     setTimeout(initHcaptcha, 1000);
@@ -1562,6 +1592,9 @@
             setTimeout(() => confettiContainer.innerHTML = '', 4500);
         }
 
+        // =============================================
+        //  ПОКАЗ ПОБЕДИТЕЛЕЙ (С КЛИКАБЕЛЬНЫМИ КАРТОЧКАМИ)
+        // =============================================
         async function showWinnersModal(winners, count) {
             lastWinners = winners;
             const now = new Date();
@@ -1577,20 +1610,35 @@
             for (let i = 0; i < winners.length; i++) {
                 const winner = winners[i];
                 const name = winner.author || 'Аноним';
+                const channelId = winner.channelId;
                 const placeEmoji = i < 10 ? placeEmojis[i] : `#${i + 1}`;
                 
-                // Модалка
+                // ===== МОДАЛКА =====
                 const item = document.createElement('div');
                 item.className = 'winner-item';
                 item.style.animationDelay = `${i * 0.1}s`;
                 
+                // При клике открываем канал
+                item.addEventListener('click', function(e) {
+                    // Не срабатывает при клике на кнопки внутри
+                    if (e.target.closest('.modal-btn')) return;
+                    openYouTubeChannel(channelId, name);
+                });
+                
                 const avatarContainer = document.createElement('div');
                 avatarContainer.className = 'winner-avatar';
+                
+                const channelLink = channelId ? 
+                    `<i class="fas fa-external-link-alt channel-link" title="Открыть канал"></i>` : 
+                    '';
                 
                 item.innerHTML = `
                     <div class="winner-place">${placeEmoji}</div>
                     <div class="winner-info">
-                        <div class="winner-name">${name}</div>
+                        <div class="winner-name">
+                            ${name}
+                            ${channelLink}
+                        </div>
                         <div class="winner-comment">${winner.text || '—'}</div>
                     </div>
                     <div class="winner-likes">
@@ -1603,7 +1651,7 @@
                 winnersList.appendChild(item);
                 await createAvatarElement(winner, avatarContainer, 44, false);
 
-                // Скриншот
+                // ===== СКРИНШОТ (без кликабельности) =====
                 const scrItem = document.createElement('div');
                 scrItem.className = 'scr-winner-item';
                 
@@ -1634,6 +1682,9 @@
             document.body.style.overflow = '';
         }
 
+        // =============================================
+        //  КОПИРОВАНИЕ
+        // =============================================
         function copyResult() {
             if (lastWinners.length === 0) return;
             
@@ -1642,7 +1693,8 @@
             
             lastWinners.forEach((w, i) => {
                 const place = i < 10 ? placeEmojis[i] : `#${i + 1}`;
-                text += `${place} ${w.author || 'Аноним'}\n   "${w.text || '—'}"\n   ❤️ ${w.likes || 0}\n\n`;
+                const channelLink = w.channelId ? `https://www.youtube.com/channel/${w.channelId}` : '';
+                text += `${place} ${w.author || 'Аноним'}\n   "${w.text || '—'}"\n   ❤️ ${w.likes || 0}\n   ${channelLink}\n\n`;
             });
             
             text += `📅 ${formatDate(new Date())}\n\nrandomized by Say-Randomizer`;
@@ -1662,6 +1714,9 @@
             });
         }
 
+        // =============================================
+        //  СКРИНШОТ
+        // =============================================
         async function downloadScreenshot() {
             if (lastWinners.length === 0) {
                 alert('Сначала выберите победителей!');
@@ -1713,6 +1768,9 @@
             }
         }
 
+        // =============================================
+        //  YOUTUBE API
+        // =============================================
         async function fetchCommentsWithAPI(videoId) {
             const videoResponse = await fetch(
                 `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}`
@@ -1764,10 +1822,12 @@
             return { comments: allComments, videoTitle, total: allComments.length };
         }
 
+        // =============================================
+        //  ОСНОВНОЙ ОБРАБОТЧИК
+        // =============================================
         async function handleRandomize() {
             if (isLoading) return;
             
-            // Проверяем hCaptcha (без текстов)
             if (!hcaptchaReady || !hcaptchaToken) {
                 setStatus('⏳ Пожалуйста, пройдите проверку', false, true);
                 return;
@@ -2053,6 +2113,7 @@
         console.log('🔑 API Key:', YOUTUBE_API_KEY ? '✅ установлен' : '❌ не установлен');
         console.log('🛡️ hCaptcha виджет без текста');
         console.log('👥 Счётчик онлайн активен');
+        console.log('📸 Клик по победителю открывает канал');
     })();
 </script>
 
