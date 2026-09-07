@@ -244,7 +244,7 @@
             50% { opacity: 0.5; transform: scale(0.8); }
         }
 
-        /* ===== КНОПКА ВХОДА ===== */
+        /* ===== АВАТАР ПОЛЬЗОВАТЕЛЯ (КРУГЛЫЙ) ===== */
         .auth-section {
             display: flex;
             align-items: center;
@@ -271,22 +271,75 @@
             transform: translateY(-2px);
         }
         .auth-btn i { font-size: 1rem; }
-        .auth-btn .avatar-mini {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--border-color);
-        }
+
         .auth-user {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 500;
+            gap: 12px;
         }
-        .auth-user .user-name { color: var(--text-primary); }
+        .auth-user .avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+        .auth-user .avatar-mini {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: block;
+            background: #2a2a2a;
+        }
+        .auth-user .avatar-fallback {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+        }
+        .auth-user .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .auth-user .user-name {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .auth-user .user-email {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        .auth-user .logout-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: 'Inter', sans-serif;
+            padding: 4px 8px;
+            border-radius: 30px;
+        }
+        .auth-user .logout-btn:hover {
+            color: #ff6b6b;
+        }
+
+        /* Светлая тема */
+        [data-theme="light"] .auth-user .avatar-mini {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        [data-theme="light"] .auth-user .avatar-fallback {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
 
         /* ===== ПОПАП ВХОДА ===== */
         .login-popup-overlay {
@@ -1337,7 +1390,7 @@
             .theme-toggle span { display: none; }
             .auth-btn { padding: 6px 12px; font-size: 0.75rem; }
             .auth-btn span { display: none; }
-            .auth-user { font-size: 0.75rem; }
+            .auth-user .user-email { display: none; }
             .login-popup { padding: 30px 24px 28px; }
             .login-popup h2 { font-size: 1.3rem; }
         }
@@ -1355,6 +1408,8 @@
             .hcaptcha-container { padding: 4px; min-height: 50px; }
             .modal-window .winner-item .winner-comment { font-size: 0.7rem; }
             .navbar .nav-links { gap: 4px; }
+            .auth-user .avatar-mini { width: 32px; height: 32px; }
+            .auth-user .avatar-fallback { width: 32px; height: 32px; font-size: 0.8rem; }
         }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -1395,13 +1450,21 @@
                 </button>
                 <!-- Информация о пользователе (показывается после входа) -->
                 <div class="auth-user" id="authUser" style="display:none;">
-                    <img id="userAvatar" src="" alt="Avatar" class="avatar-mini">
-                    <span class="user-name" id="userName">Пользователь</span>
+                    <div class="avatar-wrapper">
+                        <img id="userAvatar" src="" alt="Avatar" class="avatar-mini" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="avatar-fallback" id="avatarFallback" style="display:none; background: linear-gradient(135deg, #ff0033, #ff6b6b);">
+                            <span id="avatarInitials">U</span>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Пользователь</span>
+                        <span class="user-email" id="userEmail"></span>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn" style="display:none;">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
                 </div>
-                <button class="auth-btn logout-btn" id="logoutBtn" style="display:none;">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Выйти</span>
-                </button>
             </div>
             
             <button class="theme-toggle" id="themeToggle" title="Сменить тему">
@@ -1676,81 +1739,16 @@
         const db = firebase.firestore();
 
         // =============================================
-        //  🔑 ЯНДЕКС OAuth (НАПРЯМУЮ, БЕЗ FIREBASE IDENTITY)
-        // =============================================
-        const YANDEX_CLIENT_ID = '202a716527b64f44bea23751a1a7d7e5';
-        const YANDEX_REDIRECT_URI = window.location.href.split('?')[0]; // текущий URL
-
-        function loginWithYandex() {
-            const authUrl = `https://oauth.yandex.ru/authorize?response_type=token&client_id=${YANDEX_CLIENT_ID}&redirect_uri=${encodeURIComponent(YANDEX_REDIRECT_URI)}`;
-            
-            const popup = window.open(authUrl, 'yandex_login', 'width=500,height=600');
-            
-            // Слушаем изменения URL в окне
-            const checkPopup = setInterval(() => {
-                try {
-                    if (popup.closed) {
-                        clearInterval(checkPopup);
-                        return;
-                    }
-                    
-                    const popupUrl = popup.location.href;
-                    if (popupUrl.includes('access_token=')) {
-                        clearInterval(checkPopup);
-                        
-                        // Извлекаем токен из URL
-                        const params = new URLSearchParams(popupUrl.split('#')[1]);
-                        const token = params.get('access_token');
-                        
-                        if (token) {
-                            // Получаем данные пользователя
-                            fetch('https://login.yandex.ru/info', {
-                                headers: {
-                                    'Authorization': `OAuth ${token}`
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(userData => {
-                                const email = userData.default_email || `${userData.login}@yandex.ru`;
-                                const password = token + 'yandex';
-                                
-                                auth.signInWithEmailAndPassword(email, password)
-                                    .then(() => {
-                                        closeLoginPopup();
-                                        popup.close();
-                                    })
-                                    .catch(() => {
-                                        auth.createUserWithEmailAndPassword(email, password)
-                                            .then(() => {
-                                                closeLoginPopup();
-                                                popup.close();
-                                            })
-                                            .catch(err => {
-                                                alert('Ошибка создания аккаунта: ' + err.message);
-                                                popup.close();
-                                            });
-                                    });
-                            })
-                            .catch(err => {
-                                alert('Ошибка получения данных пользователя: ' + err.message);
-                                popup.close();
-                            });
-                        }
-                    }
-                } catch (e) {
-                    // Доступ к popup.location запрещён, пока не будет перенаправления
-                }
-            }, 500);
-        }
-
-        // =============================================
         //  🔑 АВТОРИЗАЦИЯ (Google + Яндекс)
         // =============================================
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const authUser = document.getElementById('authUser');
         const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
         const userAvatar = document.getElementById('userAvatar');
+        const avatarFallback = document.getElementById('avatarFallback');
+        const avatarInitials = document.getElementById('avatarInitials');
         const loginPopup = document.getElementById('loginPopup');
         const popupCloseBtn = document.getElementById('popupCloseBtn');
         const popupGoogleBtn = document.getElementById('popupGoogleBtn');
@@ -1759,6 +1757,16 @@
         const historyListContainer = document.getElementById('historyListContainer');
 
         let currentUser = null;
+        const avatarColors = ['#ff0033', '#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ff9f43', '#00d2d3', '#a29bfe', '#fd79a8', '#fdcb6e', '#6c5ce7', '#00cec9', '#e17055'];
+
+        function getAvatarColor(name) {
+            if (!name) return avatarColors[0];
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return avatarColors[Math.abs(hash) % avatarColors.length];
+        }
 
         // Открыть попап
         loginBtn.addEventListener('click', function() {
@@ -1800,6 +1808,68 @@
         });
 
         // Вход через Яндекс (прямой OAuth)
+        const YANDEX_CLIENT_ID = '202a716527b64f44bea23751a1a7d7e5';
+
+        function loginWithYandex() {
+            const redirectUri = window.location.href.split('?')[0];
+            const authUrl = `https://oauth.yandex.ru/authorize?response_type=token&client_id=${YANDEX_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+            
+            const popup = window.open(authUrl, 'yandex_login', 'width=500,height=600');
+            
+            const checkPopup = setInterval(() => {
+                try {
+                    if (popup.closed) {
+                        clearInterval(checkPopup);
+                        return;
+                    }
+                    
+                    const popupUrl = popup.location.href;
+                    if (popupUrl.includes('access_token=')) {
+                        clearInterval(checkPopup);
+                        
+                        const params = new URLSearchParams(popupUrl.split('#')[1]);
+                        const token = params.get('access_token');
+                        
+                        if (token) {
+                            fetch('https://login.yandex.ru/info', {
+                                headers: { 'Authorization': `OAuth ${token}` }
+                            })
+                            .then(response => response.json())
+                            .then(userData => {
+                                const email = userData.default_email || `${userData.login}@yandex.ru`;
+                                const password = token + 'yandex';
+                                
+                                auth.signInWithEmailAndPassword(email, password)
+                                    .then(() => {
+                                        closeLoginPopup();
+                                        popup.close();
+                                    })
+                                    .catch(() => {
+                                        auth.createUserWithEmailAndPassword(email, password)
+                                            .then(() => {
+                                                closeLoginPopup();
+                                                popup.close();
+                                            })
+                                            .catch(err => {
+                                                if (err.code === 'auth/operation-not-allowed') {
+                                                    alert('Включи Email/Password в Firebase Console → Authentication → Sign-in methods');
+                                                } else {
+                                                    alert('Ошибка: ' + err.message);
+                                                }
+                                                popup.close();
+                                            });
+                                    });
+                            })
+                            .catch(err => {
+                                alert('Ошибка: ' + err.message);
+                                popup.close();
+                            });
+                        }
+                    }
+                } catch (e) {}
+            }, 500);
+        }
+
         popupYandexBtn.addEventListener('click', function() {
             loginWithYandex();
         });
@@ -1816,12 +1886,29 @@
                 loginBtn.style.display = 'none';
                 authUser.style.display = 'flex';
                 logoutBtn.style.display = 'flex';
-                userName.textContent = user.displayName || user.email || 'Пользователь';
-                userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'User') + '&background=ff0033&color=fff&size=128';
+                
+                const displayName = user.displayName || user.email || 'Пользователь';
+                const email = user.email || '';
+                
+                userName.textContent = displayName;
+                userEmail.textContent = email;
+                
+                // Устанавливаем аватар
+                if (user.photoURL) {
+                    userAvatar.src = user.photoURL;
+                    userAvatar.style.display = 'block';
+                    avatarFallback.style.display = 'none';
+                } else {
+                    userAvatar.style.display = 'none';
+                    avatarFallback.style.display = 'flex';
+                    const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                    avatarInitials.textContent = initials || 'U';
+                    avatarFallback.style.background = getAvatarColor(displayName);
+                }
                 
                 historyLoginPrompt.style.display = 'none';
                 historyListContainer.style.display = 'block';
-                loadHistory(user.uid);
+                if (user.uid) loadHistory(user.uid);
             } else {
                 loginBtn.style.display = 'flex';
                 authUser.style.display = 'none';
@@ -2022,7 +2109,7 @@
             return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
         }
 
-        function getAvatarColor(name) {
+        function getAvatarColor2(name) {
             let hash = 0;
             for (let i = 0; i < name.length; i++) {
                 hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -2032,7 +2119,7 @@
         }
 
         function getAvatarGradient(name) {
-            return `linear-gradient(135deg, ${getAvatarColor(name)}, ${getAvatarColor(name + 'salt')})`;
+            return `linear-gradient(135deg, ${getAvatarColor2(name)}, ${getAvatarColor2(name + 'salt')})`;
         }
 
         async function fetchYouTubeAvatar(channelId) {
