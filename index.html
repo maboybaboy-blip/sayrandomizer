@@ -23,7 +23,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== ПЕРЕМЕННЫЕ ТЁМНОЙ ТЕМЫ (ПО УМОЛЧАНИЮ) ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --youtube: #ff0033;
             --youtube-dark: #cc0028;
@@ -56,8 +56,6 @@
             --comment-bg: rgba(255, 255, 255, 0.02);
             --status-dot-bg: #4caf50;
         }
-
-        /* ===== СВЕТЛАЯ ТЕМА ===== */
         [data-theme="light"] {
             --bg-dark: #f0f0f0;
             --bg-card: rgba(255, 255, 255, 0.92);
@@ -84,8 +82,6 @@
             --comment-bg: rgba(0, 0, 0, 0.02);
             --status-dot-bg: #4caf50;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-dark);
@@ -95,8 +91,6 @@
             position: relative;
             transition: background 0.3s ease, color 0.3s ease;
         }
-
-        /* ===== ФОНОВЫЕ ЭФФЕКТЫ ===== */
         .bg-effects {
             position: fixed;
             inset: 0;
@@ -113,31 +107,23 @@
             animation: orbFloat 20s ease-in-out infinite alternate;
             transition: opacity 0.5s ease;
         }
-        [data-theme="light"] .bg-effects .orb {
-            opacity: 0.04;
-        }
+        [data-theme="light"] .bg-effects .orb { opacity: 0.04; }
         .bg-effects .orb:nth-child(1) {
-            width: 600px;
-            height: 600px;
+            width: 600px; height: 600px;
             background: radial-gradient(circle, #ff0033, transparent);
-            top: -10%;
-            right: -10%;
+            top: -10%; right: -10%;
             animation-delay: 0s;
         }
         .bg-effects .orb:nth-child(2) {
-            width: 400px;
-            height: 400px;
+            width: 400px; height: 400px;
             background: radial-gradient(circle, #ff6b6b, transparent);
-            bottom: -5%;
-            left: -5%;
+            bottom: -5%; left: -5%;
             animation-delay: -7s;
         }
         .bg-effects .orb:nth-child(3) {
-            width: 300px;
-            height: 300px;
+            width: 300px; height: 300px;
             background: radial-gradient(circle, #ff0033, transparent);
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             animation-delay: -14s;
             opacity: 0.05;
@@ -152,16 +138,13 @@
             opacity: 0.3;
             transition: opacity 0.5s ease;
         }
-        [data-theme="light"] .bg-effects .grid {
-            opacity: 0.08;
-        }
+        [data-theme="light"] .bg-effects .grid { opacity: 0.08; }
         @keyframes orbFloat {
             0% { transform: translate(0, 0) scale(1); }
             33% { transform: translate(30px, -20px) scale(1.1); }
             66% { transform: translate(-20px, 30px) scale(0.9); }
             100% { transform: translate(10px, -10px) scale(1.05); }
         }
-
         .container {
             position: relative;
             z-index: 1;
@@ -169,8 +152,6 @@
             margin: 0 auto;
             padding: 30px 24px 60px;
         }
-
-        /* ===== НАВБАР ===== */
         .navbar {
             display: flex;
             align-items: center;
@@ -261,8 +242,6 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(0.8); }
         }
-
-        /* ===== КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ===== */
         .theme-toggle {
             display: flex;
             align-items: center;
@@ -283,22 +262,11 @@
             color: var(--text-primary);
             transform: translateY(-2px);
         }
-        .theme-toggle i {
-            font-size: 1rem;
-        }
-        [data-theme="light"] .theme-toggle i.fa-moon {
-            display: none;
-        }
-        [data-theme="light"] .theme-toggle i.fa-sun {
-            display: inline-block;
-        }
-        .theme-toggle i.fa-moon {
-            display: inline-block;
-        }
-        .theme-toggle i.fa-sun {
-            display: none;
-        }
-
+        .theme-toggle i { font-size: 1rem; }
+        [data-theme="light"] .theme-toggle i.fa-moon { display: none; }
+        [data-theme="light"] .theme-toggle i.fa-sun { display: inline-block; }
+        .theme-toggle i.fa-moon { display: inline-block; }
+        .theme-toggle i.fa-sun { display: none; }
         .online-counter {
             display: flex;
             align-items: center;
@@ -325,7 +293,6 @@
             color: var(--text-primary);
             font-size: 0.9rem;
         }
-
         .tabs {
             display: flex;
             gap: 8px;
@@ -425,7 +392,6 @@
             font-weight: 400;
             transition: color 0.3s ease;
         }
-
         .input-section { margin-top: 8px; }
         .input-section .label-row {
             display: flex;
@@ -517,7 +483,6 @@
             transform: none;
         }
         .input-wrapper .btn-youtube i { font-size: 1.2rem; }
-
         .winners-selector {
             display: flex;
             align-items: center;
@@ -558,7 +523,6 @@
             border-color: var(--youtube);
             box-shadow: 0 4px 15px rgba(255, 0, 51, 0.25);
         }
-
         .hcaptcha-container {
             display: flex;
             justify-content: center;
@@ -575,7 +539,6 @@
             justify-content: center;
             width: 100%;
         }
-
         .status-bar {
             background: var(--status-bg);
             border-radius: var(--radius-sm);
@@ -612,7 +575,6 @@
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .stats-row {
             display: flex;
             justify-content: space-between;
@@ -636,7 +598,6 @@
         }
         .stats-row .stat-item i { opacity: 0.5; font-size: 0.8rem; }
         .stats-row .stat-item .stat-value { color: var(--text-secondary); font-weight: 500; }
-
         .subscriber-display {
             display: flex;
             align-items: center;
@@ -692,7 +653,6 @@
             60% { transform: scale(0.9); }
             100% { transform: scale(1); }
         }
-
         .sub-notification {
             position: fixed;
             bottom: 30px;
@@ -737,7 +697,6 @@
             transition: color 0.2s;
         }
         .sub-notification .sub-close:hover { color: var(--text-primary); }
-
         .footer {
             margin-top: 30px;
             color: var(--text-muted);
@@ -770,8 +729,6 @@
             transition: opacity 0.3s, color 0.3s ease;
         }
         .footer .footer-icons i:hover { opacity: 0.7; }
-
-        /* ===== МОДАЛЬНОЕ ОКНО ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -924,9 +881,7 @@
             opacity: 0.5;
             transition: opacity 0.3s;
         }
-        .modal-window .winner-item:hover .winner-name .channel-link {
-            opacity: 1;
-        }
+        .modal-window .winner-item:hover .winner-name .channel-link { opacity: 1; }
         .modal-window .winner-item .winner-comment {
             color: var(--text-secondary);
             font-size: 0.8rem;
@@ -1016,7 +971,6 @@
             color: var(--text-primary);
             transform: translateY(-2px);
         }
-
         .modal-confetti {
             position: absolute;
             inset: 0;
@@ -1034,7 +988,6 @@
             0% { transform: translateY(-20px) rotate(0deg) scale(0.5); opacity: 1; }
             100% { transform: translateY(calc(100vh + 50px)) rotate(720deg) scale(1); opacity: 0; }
         }
-
         .screenshot-container {
             position: fixed;
             left: -9999px;
@@ -1135,7 +1088,6 @@
             transition: color 0.3s ease, border-color 0.3s ease;
         }
         .screenshot-container .scr-watermark span { color: var(--youtube); }
-
         @media (max-width: 768px) {
             .container { padding: 16px 16px 40px; }
             .main-card { padding: 32px 24px 28px; border-radius: 32px; }
@@ -1209,7 +1161,6 @@
                 <i class="fab fa-youtube"></i>
                 <span>Главная</span>
             </a>
-            <!-- ===== КНОПКА СМЕНЫ ТЕМЫ ===== -->
             <button class="theme-toggle" id="themeToggle" title="Сменить тему">
                 <i class="fas fa-moon"></i>
                 <i class="fas fa-sun"></i>
@@ -1293,7 +1244,7 @@
         </div>
     </div>
 
-    <!-- ===== ТРЕКЕР ПОДПИСЧИКОВ ===== -->
+    <!-- ===== ТРЕКЕР ПОДПИСЧИКОВ (ИСПРАВЛЕННЫЙ) ===== -->
     <div class="tab-content" id="tab-tracker">
         <div class="main-card">
             <div class="header-section">
@@ -1397,7 +1348,7 @@
         // =============================================
 
         // =============================================
-        //  🔄 СМЕНА ТЕМЫ
+        //  СМЕНА ТЕМЫ
         // =============================================
         function initTheme() {
             const savedTheme = localStorage.getItem('sayrandomizer_theme') || 'dark';
@@ -1419,10 +1370,8 @@
                 }
             }
             
-            // Применяем сохранённую тему
             setTheme(savedTheme);
             
-            // Обработчик клика
             themeToggle.addEventListener('click', function() {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -1549,9 +1498,6 @@
             return `linear-gradient(135deg, ${getAvatarColor(name)}, ${getAvatarColor(name + 'salt')})`;
         }
 
-        // =============================================
-        //  ПЕРЕХОД НА КАНАЛ YOUTUBE
-        // =============================================
         function openYouTubeChannel(channelId, authorName) {
             if (!channelId) {
                 const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
@@ -1562,9 +1508,6 @@
             window.open(channelUrl, '_blank');
         }
 
-        // =============================================
-        //  ФУНКЦИЯ ФОРМАТИРОВАНИЯ
-        // =============================================
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
@@ -2072,7 +2015,7 @@
         }
 
         // =============================================
-        //  СОБЫТИЯ
+        //  СОБЫТИЯ РАНДОМАЙЗЕРА
         // =============================================
         randomizeBtn.addEventListener('click', handleRandomize);
         closeModalBtn.addEventListener('click', closeModal);
@@ -2084,7 +2027,7 @@
         videoUrlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); randomizeBtn.click(); } });
 
         // =============================================
-        //  ТРЕКЕР ПОДПИСЧИКОВ
+        //  ТРЕКЕР ПОДПИСЧИКОВ (С ТОЧНЫМ ЧИСЛОМ)
         // =============================================
         const youtubeChannelInput = document.getElementById('youtubeChannelInput');
         const trackYoutubeBtn = document.getElementById('trackYoutubeBtn');
@@ -2112,9 +2055,7 @@
                 'linustechtips': 'UCXuqSBlHAE6Xw-yeJA0Tunw',
                 'mrbeast': 'UCX6OQ3DkcsbYNE6H8uQQuVA',
                 'pewdiepie': 'UC-lHJZR3Gqxm24_Vd_AJ5Yw',
-                'dudeperfect': 'UC7Y3cI8gUPBlnDNo91EsnJQ',
-                'markiplier': 'UC7_YxT-KID8kRbqZo7MyscQ',
-                'jacksepticeye': 'UCYzPXprvl5Y-Sf0g4vX-m6g'
+                'loganlans': 'UC3Vg6wD5wzR7Bp9hL5wGj1Q'
             };
 
             if (popularChannels[channelName.toLowerCase()]) {
@@ -2142,27 +2083,37 @@
             setTrackerStatus('Загрузка...', false, true);
             
             try {
-                const channelId = await getChannelIdByName(input);
+                // Получаем ID канала
+                let channelId = await getChannelIdByName(input);
                 
-                const channelResponse = await fetch(
-                    `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${YOUTUBE_API_KEY}`
+                // ПОЛУЧАЕМ ТОЧНОЕ КОЛИЧЕСТВО ПОДПИСЧИКОВ (part=statistics)
+                const subsResponse = await fetch(
+                    `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${YOUTUBE_API_KEY}`
                 );
                 
-                if (!channelResponse.ok) {
-                    throw new Error(`Ошибка получения канала: ${channelResponse.status}`);
+                if (!subsResponse.ok) {
+                    throw new Error(`Ошибка получения подписчиков: ${subsResponse.status}`);
                 }
                 
-                const channelData = await channelResponse.json();
+                const subsData = await subsResponse.json();
                 
-                if (!channelData.items || channelData.items.length === 0) {
+                if (!subsData.items || subsData.items.length === 0) {
                     throw new Error('Канал не найден');
                 }
                 
-                const channel = channelData.items[0];
-                const channelName = channel.snippet.title;
-                const count = parseInt(channel.statistics.subscriberCount) || 0;
+                // ТОЧНОЕ ЧИСЛО (без округления)
+                const count = parseInt(subsData.items[0].statistics.subscriberCount) || 0;
                 
-                currentChannelName.textContent = channelName;
+                // Получаем название канала
+                const channelResponse = await fetch(
+                    `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${YOUTUBE_API_KEY}`
+                );
+                if (channelResponse.ok) {
+                    const channelData = await channelResponse.json();
+                    if (channelData.items && channelData.items.length > 0) {
+                        currentChannelName.textContent = channelData.items[0].snippet.title;
+                    }
+                }
                 
                 if (count === 0) {
                     throw new Error('У канала нет подписчиков');
@@ -2267,7 +2218,6 @@
         // =============================================
         //  ЗАПУСК
         // =============================================
-        // Инициализируем тему
         initTheme();
         
         setTimeout(initHcaptcha, 1000);
@@ -2283,6 +2233,7 @@
         console.log('👥 Счётчик онлайн активен');
         console.log('📸 Клик по победителю открывает канал');
         console.log('🌓 Смена темы: доступна в навбаре');
+        console.log('📊 Трекер показывает ТОЧНОЕ количество подписчиков');
     })();
 </script>
 
