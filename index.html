@@ -28,6 +28,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
     
     <style>
+        /* ===== БАЗОВЫЕ СТИЛИ ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --youtube: #ff0033;
@@ -59,9 +60,6 @@
             --tab-bg: rgba(20, 20, 20, 0.5);
             --btn-close-bg: rgba(255, 255, 255, 0.05);
             --btn-screenshot-bg: rgba(255, 255, 255, 0.04);
-            --badge-bg: rgba(255, 0, 51, 0.15);
-            --comment-bg: rgba(255, 255, 255, 0.02);
-            --status-dot-bg: #4caf50;
         }
         [data-theme="light"] {
             --bg-dark: #f0f0f0;
@@ -85,9 +83,6 @@
             --tab-bg: rgba(255, 255, 255, 0.6);
             --btn-close-bg: rgba(0, 0, 0, 0.05);
             --btn-screenshot-bg: rgba(0, 0, 0, 0.04);
-            --badge-bg: rgba(255, 0, 51, 0.1);
-            --comment-bg: rgba(0, 0, 0, 0.02);
-            --status-dot-bg: #4caf50;
         }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -250,12 +245,11 @@
             50% { opacity: 0.5; transform: scale(0.8); }
         }
 
-        /* ===== АВТОРИЗАЦИЯ ===== */
+        /* ===== КНОПКА ВХОДА ===== */
         .auth-section {
             display: flex;
             align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
+            gap: 8px;
         }
         .auth-btn {
             display: flex;
@@ -277,12 +271,6 @@
             color: var(--text-primary);
             transform: translateY(-2px);
         }
-        .auth-btn.google-btn { color: #4285F4; border-color: rgba(66, 133, 244, 0.2); }
-        .auth-btn.google-btn:hover { background: rgba(66, 133, 244, 0.08); border-color: rgba(66, 133, 244, 0.3); }
-        .auth-btn.yandex-btn { color: #FC3F1D; border-color: rgba(252, 63, 29, 0.2); }
-        .auth-btn.yandex-btn:hover { background: rgba(252, 63, 29, 0.08); border-color: rgba(252, 63, 29, 0.3); }
-        .auth-btn.logout-btn { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.2); }
-        .auth-btn.logout-btn:hover { background: rgba(255, 107, 107, 0.08); border-color: rgba(255, 107, 107, 0.3); }
         .auth-btn i { font-size: 1rem; }
         .auth-btn .avatar-mini {
             width: 28px;
@@ -300,6 +288,107 @@
             font-weight: 500;
         }
         .auth-user .user-name { color: var(--text-primary); }
+
+        /* ===== ПОПАП ВХОДА ===== */
+        .login-popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            padding: 20px;
+            animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .login-popup-overlay.active { display: flex; }
+        .login-popup {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            max-width: 420px;
+            width: 100%;
+            padding: 40px 36px 36px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .login-popup .popup-icon {
+            font-size: 3.6rem;
+            color: var(--youtube);
+            margin-bottom: 12px;
+            display: block;
+        }
+        .login-popup h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .login-popup p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+        .login-popup .popup-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 16px 0 20px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        .login-popup .popup-divider::before,
+        .login-popup .popup-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        .login-popup .popup-providers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .login-popup .provider-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 60px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+        }
+        .login-popup .provider-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .login-popup .provider-btn.google-btn { border-color: rgba(66, 133, 244, 0.3); }
+        .login-popup .provider-btn.google-btn:hover { background: rgba(66, 133, 244, 0.08); border-color: rgba(66, 133, 244, 0.5); }
+        .login-popup .provider-btn.google-btn i { color: #4285F4; font-size: 1.3rem; }
+        .login-popup .provider-btn.yandex-btn { border-color: rgba(252, 63, 29, 0.3); }
+        .login-popup .provider-btn.yandex-btn:hover { background: rgba(252, 63, 29, 0.08); border-color: rgba(252, 63, 29, 0.5); }
+        .login-popup .provider-btn.yandex-btn i { color: #FC3F1D; font-size: 1.3rem; }
+        .login-popup .popup-close {
+            margin-top: 18px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .login-popup .popup-close:hover { color: var(--text-primary); }
 
         .theme-toggle {
             display: flex;
@@ -454,7 +543,6 @@
             transition: color 0.3s ease;
         }
 
-        /* ===== ИСТОРИЯ ПОБЕДИТЕЛЕЙ ===== */
         .history-section {
             margin-top: 24px;
             padding: 20px;
@@ -1251,6 +1339,8 @@
             .auth-btn { padding: 6px 12px; font-size: 0.75rem; }
             .auth-btn span { display: none; }
             .auth-user { font-size: 0.75rem; }
+            .login-popup { padding: 30px 24px 28px; }
+            .login-popup h2 { font-size: 1.3rem; }
         }
         @media (max-width: 480px) {
             .main-card .header-section h1 { font-size: 1.6rem; }
@@ -1266,7 +1356,6 @@
             .hcaptcha-container { padding: 4px; min-height: 50px; }
             .modal-window .winner-item .winner-comment { font-size: 0.7rem; }
             .navbar .nav-links { gap: 4px; }
-            .auth-section { gap: 6px; }
         }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -1297,16 +1386,13 @@
                 <i class="fab fa-youtube"></i>
                 <span>Главная</span>
             </a>
+            
             <!-- ===== АВТОРИЗАЦИЯ ===== -->
             <div class="auth-section" id="authSection">
-                <!-- Кнопки входа будут показаны, если пользователь не авторизован -->
-                <button class="auth-btn google-btn" id="googleLoginBtn" style="display:none;">
-                    <i class="fab fa-google"></i>
-                    <span>Google</span>
-                </button>
-                <button class="auth-btn yandex-btn" id="yandexLoginBtn" style="display:none;">
-                    <i class="fas fa-y"></i>
-                    <span>Яндекс</span>
+                <!-- Кнопка "Войти" (показывается если не авторизован) -->
+                <button class="auth-btn" id="loginBtn" style="display:flex;">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Войти</span>
                 </button>
                 <!-- Информация о пользователе (показывается после входа) -->
                 <div class="auth-user" id="authUser" style="display:none;">
@@ -1335,6 +1421,28 @@
             <i class="fas fa-circle" style="font-size: 0.4rem;"></i> API активен
         </div>
     </nav>
+
+    <!-- ===== ПОПАП ВХОДА ===== -->
+    <div class="login-popup-overlay" id="loginPopup">
+        <div class="login-popup">
+            <span class="popup-icon">🔐</span>
+            <h2>Вход в аккаунт</h2>
+            <p>Войдите, чтобы сохранять историю розыгрышей</p>
+            
+            <div class="popup-divider">Войти через</div>
+            
+            <div class="popup-providers">
+                <button class="provider-btn google-btn" id="popupGoogleBtn">
+                    <i class="fab fa-google"></i> Google
+                </button>
+                <button class="provider-btn yandex-btn" id="popupYandexBtn">
+                    <i class="fas fa-y"></i> Яндекс ID
+                </button>
+            </div>
+            
+            <button class="popup-close" id="popupCloseBtn">✕ Закрыть</button>
+        </div>
+    </div>
 
     <div class="tabs">
         <button class="tab-btn active" data-tab="randomizer">
@@ -1555,12 +1663,12 @@
         //  ВСТАВЬ СВОИ ДАННЫЕ ИЗ FIREBASE CONSOLE
         // =============================================
         const firebaseConfig = {
-            apiKey: "ТВОЙ_API_KEY",
-            authDomain: "ТВОЙ_PROJECT.firebaseapp.com",
-            projectId: "ТВОЙ_PROJECT_ID",
-            storageBucket: "ТВОЙ_PROJECT.appspot.com",
-            messagingSenderId: "ТВОЙ_SENDER_ID",
-            appId: "ТВОЙ_APP_ID"
+            apiKey: "AIzaSyCPlZip9SDehY352Vsnr0Kpzee1gBjNIAI",
+            authDomain: "sayrandomizer.firebaseapp.com",
+            projectId: "sayrandomizer",
+            storageBucket: "sayrandomizer.firebasestorage.app",
+            messagingSenderId: "681619938039",
+            appId: "1:681619938039:web:b32fdf6421f223b00791f2"
         };
         // =============================================
 
@@ -1570,76 +1678,77 @@
         const db = firebase.firestore();
 
         // =============================================
-        //  🔑 АВТОРИЗАЦИЯ (Google + Яндекс)
+        //  🔑 АВТОРИЗАЦИЯ
         // =============================================
-        const googleLoginBtn = document.getElementById('googleLoginBtn');
-        const yandexLoginBtn = document.getElementById('yandexLoginBtn');
+        const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const authUser = document.getElementById('authUser');
         const userName = document.getElementById('userName');
         const userAvatar = document.getElementById('userAvatar');
+        const loginPopup = document.getElementById('loginPopup');
+        const popupCloseBtn = document.getElementById('popupCloseBtn');
+        const popupGoogleBtn = document.getElementById('popupGoogleBtn');
+        const popupYandexBtn = document.getElementById('popupYandexBtn');
         const historyLoginPrompt = document.getElementById('historyLoginPrompt');
         const historyListContainer = document.getElementById('historyListContainer');
 
         let currentUser = null;
 
-        // Обновление UI в зависимости от статуса авторизации
-        function updateAuthUI(user) {
-            currentUser = user;
-            if (user) {
-                // Пользователь авторизован
-                googleLoginBtn.style.display = 'none';
-                yandexLoginBtn.style.display = 'none';
-                authUser.style.display = 'flex';
-                logoutBtn.style.display = 'flex';
-                userName.textContent = user.displayName || user.email || 'Пользователь';
-                userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'User') + '&background=ff0033&color=fff&size=128';
-                
-                // Показываем историю
-                historyLoginPrompt.style.display = 'none';
-                historyListContainer.style.display = 'block';
-                loadHistory(user.uid);
-            } else {
-                // Пользователь не авторизован
-                googleLoginBtn.style.display = 'flex';
-                yandexLoginBtn.style.display = 'flex';
-                authUser.style.display = 'none';
-                logoutBtn.style.display = 'none';
-                historyLoginPrompt.style.display = 'block';
-                historyListContainer.style.display = 'none';
-            }
-        }
-
-        // Вход через Google
-        googleLoginBtn.addEventListener('click', function() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(function(error) {
-                console.error('Ошибка входа через Google:', error);
-                alert('Ошибка входа: ' + error.message);
-            });
+        // Открыть попап
+        loginBtn.addEventListener('click', function() {
+            loginPopup.classList.add('active');
+            document.body.style.overflow = 'hidden';
         });
 
-        // Вход через Яндекс (через Email + пароль или OAuth)
-        yandexLoginBtn.addEventListener('click', function() {
-            // Яндекс использует OAuth через Firebase
-            // Для упрощения предлагаем ввести email и пароль (можно будет зарегистрироваться)
+        // Закрыть попап
+        function closeLoginPopup() {
+            loginPopup.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        popupCloseBtn.addEventListener('click', closeLoginPopup);
+        loginPopup.addEventListener('click', function(e) {
+            if (e.target === loginPopup) closeLoginPopup();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && loginPopup.classList.contains('active')) {
+                closeLoginPopup();
+            }
+        });
+
+        // Вход через Google
+        popupGoogleBtn.addEventListener('click', function() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(function() {
+                    closeLoginPopup();
+                })
+                .catch(function(error) {
+                    console.error('Ошибка входа через Google:', error);
+                    alert('Ошибка входа: ' + error.message);
+                });
+        });
+
+        // Вход через Яндекс (через email/пароль)
+        popupYandexBtn.addEventListener('click', function() {
             const email = prompt('Введите email для входа через Яндекс (или любой email):');
             if (!email) return;
             const password = prompt('Введите пароль:');
             if (!password) return;
             
-            // Пробуем войти
             auth.signInWithEmailAndPassword(email, password)
+                .then(function() {
+                    closeLoginPopup();
+                })
                 .catch(function(error) {
                     if (error.code === 'auth/user-not-found') {
-                        // Если пользователь не найден, создаём нового
                         if (confirm('Пользователь не найден. Хотите создать новый аккаунт?')) {
                             auth.createUserWithEmailAndPassword(email, password)
                                 .then(function(result) {
-                                    // Обновляем профиль
                                     result.user.updateProfile({
                                         displayName: email.split('@')[0]
                                     });
+                                    closeLoginPopup();
                                 })
                                 .catch(function(err) {
                                     alert('Ошибка регистрации: ' + err.message);
@@ -1656,13 +1765,42 @@
             auth.signOut();
         });
 
-        // Слушатель изменения статуса авторизации
+        // Обновление UI
+        function updateAuthUI(user) {
+            currentUser = user;
+            if (user) {
+                loginBtn.style.display = 'none';
+                authUser.style.display = 'flex';
+                logoutBtn.style.display = 'flex';
+                userName.textContent = user.displayName || user.email || 'Пользователь';
+                userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'User') + '&background=ff0033&color=fff&size=128';
+                
+                historyLoginPrompt.style.display = 'none';
+                historyListContainer.style.display = 'block';
+                loadHistory(user.uid);
+            } else {
+                loginBtn.style.display = 'flex';
+                authUser.style.display = 'none';
+                logoutBtn.style.display = 'none';
+                historyLoginPrompt.style.display = 'block';
+                historyListContainer.style.display = 'none';
+            }
+        }
+
         auth.onAuthStateChanged(function(user) {
             updateAuthUI(user);
         });
 
+        // Кнопки на странице истории
+        document.getElementById('historyGoogleBtn').addEventListener('click', function() {
+            popupGoogleBtn.click();
+        });
+        document.getElementById('historyYandexBtn').addEventListener('click', function() {
+            popupYandexBtn.click();
+        });
+
         // =============================================
-        //  💾 СОХРАНЕНИЕ ИСТОРИИ В FIRESTORE
+        //  💾 FIRESTORE
         // =============================================
         function saveHistoryToFirebase(userId, winners, videoId, videoTitle) {
             const drawData = {
@@ -1822,8 +1960,11 @@
         }
 
         // =============================================
-        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (РАНДОМАЙЗЕР)
         // =============================================
+        const YOUTUBE_API_KEY = window.__ENV?.YOUTUBE_API_KEY || 'AIzaSyB8wJjFBOdz6VS0tZBGMy71jBCx_WCdmas';
+        const HCAPTCHA_SITE_KEY = window.__ENV?.HCAPTCHA_SITE_KEY || '56a8a9d6-8f22-4e0a-ae40-d6a6e0148860';
+
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
@@ -2027,9 +2168,6 @@
         // =============================================
         //  РАНДОМАЙЗЕР
         // =============================================
-        const YOUTUBE_API_KEY = window.__ENV?.YOUTUBE_API_KEY || 'AIzaSyB8wJjFBOdz6VS0tZBGMy71jBCx_WCdmas';
-        const HCAPTCHA_SITE_KEY = window.__ENV?.HCAPTCHA_SITE_KEY || '56a8a9d6-8f22-4e0a-ae40-d6a6e0148860';
-        
         const videoUrlInput = document.getElementById('videoUrl');
         const randomizeBtn = document.getElementById('randomizeBtn');
         const statusText = document.getElementById('statusText');
@@ -2411,7 +2549,6 @@
             showWinnersModal(winners, count);
             setStatus(`🎉 Выбрано ${count} победителей из ${cachedComments.length} комментариев!`);
             
-            // Сохраняем историю если пользователь авторизован
             if (currentUser) {
                 saveHistoryToFirebase(currentUser.uid, winners, videoId, videoTitleSpan.textContent);
             }
@@ -2428,14 +2565,6 @@
         modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
         videoUrlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); randomizeBtn.click(); } });
-
-        // Кнопки входа на странице истории
-        document.getElementById('historyGoogleBtn').addEventListener('click', function() {
-            document.getElementById('googleLoginBtn').click();
-        });
-        document.getElementById('historyYandexBtn').addEventListener('click', function() {
-            document.getElementById('yandexLoginBtn').click();
-        });
 
         // =============================================
         //  ТРЕКЕР ПОДПИСЧИКОВ
@@ -2640,7 +2769,7 @@
         console.log('📸 Клик по победителю открывает канал');
         console.log('🌓 Смена темы: доступна в навбаре');
         console.log('📊 Трекер показывает ТОЧНОЕ количество подписчиков');
-        console.log('🔐 Вход через Google и Яндекс');
+        console.log('🔐 Вход через Google и Яндекс (кнопка "Войти")');
         console.log('💾 История сохраняется в Firebase');
     })();
 </script>
