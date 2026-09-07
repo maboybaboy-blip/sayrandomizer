@@ -28,7 +28,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== БАЗОВЫЕ СТИЛИ ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --youtube: #ff0033;
@@ -1659,8 +1658,7 @@
 <script>
     (function() {
         // =============================================
-        //  🔥 FIREBASE КОНФИГ
-        //  ВСТАВЬ СВОИ ДАННЫЕ ИЗ FIREBASE CONSOLE
+        //  🔥 FIREBASE КОНФИГ (ТВОЙ)
         // =============================================
         const firebaseConfig = {
             apiKey: "AIzaSyCPlZip9SDehY352Vsnr0Kpzee1gBjNIAI",
@@ -1678,7 +1676,75 @@
         const db = firebase.firestore();
 
         // =============================================
-        //  🔑 АВТОРИЗАЦИЯ
+        //  🔑 ЯНДЕКС OAuth (НАПРЯМУЮ, БЕЗ FIREBASE IDENTITY)
+        // =============================================
+        const YANDEX_CLIENT_ID = '202a716527b64f44bea23751a1a7d7e5';
+        const YANDEX_REDIRECT_URI = window.location.href.split('?')[0]; // текущий URL
+
+        function loginWithYandex() {
+            const authUrl = `https://oauth.yandex.ru/authorize?response_type=token&client_id=${YANDEX_CLIENT_ID}&redirect_uri=${encodeURIComponent(YANDEX_REDIRECT_URI)}`;
+            
+            const popup = window.open(authUrl, 'yandex_login', 'width=500,height=600');
+            
+            // Слушаем изменения URL в окне
+            const checkPopup = setInterval(() => {
+                try {
+                    if (popup.closed) {
+                        clearInterval(checkPopup);
+                        return;
+                    }
+                    
+                    const popupUrl = popup.location.href;
+                    if (popupUrl.includes('access_token=')) {
+                        clearInterval(checkPopup);
+                        
+                        // Извлекаем токен из URL
+                        const params = new URLSearchParams(popupUrl.split('#')[1]);
+                        const token = params.get('access_token');
+                        
+                        if (token) {
+                            // Получаем данные пользователя
+                            fetch('https://login.yandex.ru/info', {
+                                headers: {
+                                    'Authorization': `OAuth ${token}`
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(userData => {
+                                const email = userData.default_email || `${userData.login}@yandex.ru`;
+                                const password = token + 'yandex';
+                                
+                                auth.signInWithEmailAndPassword(email, password)
+                                    .then(() => {
+                                        closeLoginPopup();
+                                        popup.close();
+                                    })
+                                    .catch(() => {
+                                        auth.createUserWithEmailAndPassword(email, password)
+                                            .then(() => {
+                                                closeLoginPopup();
+                                                popup.close();
+                                            })
+                                            .catch(err => {
+                                                alert('Ошибка создания аккаунта: ' + err.message);
+                                                popup.close();
+                                            });
+                                    });
+                            })
+                            .catch(err => {
+                                alert('Ошибка получения данных пользователя: ' + err.message);
+                                popup.close();
+                            });
+                        }
+                    }
+                } catch (e) {
+                    // Доступ к popup.location запрещён, пока не будет перенаправления
+                }
+            }, 500);
+        }
+
+        // =============================================
+        //  🔑 АВТОРИЗАЦИЯ (Google + Яндекс)
         // =============================================
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -1725,39 +1791,17 @@
                 })
                 .catch(function(error) {
                     console.error('Ошибка входа через Google:', error);
-                    alert('Ошибка входа: ' + error.message);
-                });
-        });
-
-        // Вход через Яндекс (через email/пароль)
-        popupYandexBtn.addEventListener('click', function() {
-            const email = prompt('Введите email для входа через Яндекс (или любой email):');
-            if (!email) return;
-            const password = prompt('Введите пароль:');
-            if (!password) return;
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .then(function() {
-                    closeLoginPopup();
-                })
-                .catch(function(error) {
-                    if (error.code === 'auth/user-not-found') {
-                        if (confirm('Пользователь не найден. Хотите создать новый аккаунт?')) {
-                            auth.createUserWithEmailAndPassword(email, password)
-                                .then(function(result) {
-                                    result.user.updateProfile({
-                                        displayName: email.split('@')[0]
-                                    });
-                                    closeLoginPopup();
-                                })
-                                .catch(function(err) {
-                                    alert('Ошибка регистрации: ' + err.message);
-                                });
-                        }
+                    if (error.code === 'auth/unauthorized-domain') {
+                        alert('Домен не добавлен. Добавь в Firebase: sayrandomizer.vercel.app, localhost, 127.0.0.1');
                     } else {
                         alert('Ошибка входа: ' + error.message);
                     }
                 });
+        });
+
+        // Вход через Яндекс (прямой OAuth)
+        popupYandexBtn.addEventListener('click', function() {
+            loginWithYandex();
         });
 
         // Выход
@@ -1800,7 +1844,7 @@
         });
 
         // =============================================
-        //  💾 FIRESTORE
+        //  💾 FIRESTORE (СОХРАНЕНИЕ ИСТОРИИ)
         // =============================================
         function saveHistoryToFirebase(userId, winners, videoId, videoTitle) {
             const drawData = {
@@ -1960,7 +2004,7 @@
         }
 
         // =============================================
-        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (РАНДОМАЙЗЕР)
+        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
         // =============================================
         const YOUTUBE_API_KEY = window.__ENV?.YOUTUBE_API_KEY || 'AIzaSyB8wJjFBOdz6VS0tZBGMy71jBCx_WCdmas';
         const HCAPTCHA_SITE_KEY = window.__ENV?.HCAPTCHA_SITE_KEY || '56a8a9d6-8f22-4e0a-ae40-d6a6e0148860';
@@ -2769,7 +2813,7 @@
         console.log('📸 Клик по победителю открывает канал');
         console.log('🌓 Смена темы: доступна в навбаре');
         console.log('📊 Трекер показывает ТОЧНОЕ количество подписчиков');
-        console.log('🔐 Вход через Google и Яндекс (кнопка "Войти")');
+        console.log('🔐 Вход через Google и Яндекс');
         console.log('💾 История сохраняется в Firebase');
     })();
 </script>
