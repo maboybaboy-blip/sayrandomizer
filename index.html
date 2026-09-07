@@ -23,7 +23,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== ВСЕ СТИЛИ ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --youtube: #ff0033;
@@ -198,7 +197,6 @@
             50% { opacity: 0.5; transform: scale(0.8); }
         }
 
-        /* ===== ОНЛАЙН КАУНТЕР ===== */
         .online-counter {
             display: flex;
             align-items: center;
@@ -225,7 +223,6 @@
             font-size: 0.9rem;
         }
 
-        /* ===== ОСТАЛЬНЫЕ СТИЛИ ===== */
         .tabs {
             display: flex;
             gap: 8px;
@@ -449,63 +446,22 @@
             border-color: var(--youtube);
             box-shadow: 0 4px 15px rgba(255, 0, 51, 0.25);
         }
+
+        /* ===== HCAPTCHA (ТОЛЬКО ВИДЖЕТ, БЕЗ ТЕКСТА) ===== */
         .hcaptcha-container {
             display: flex;
             justify-content: center;
             margin: 12px 0 8px;
-            padding: 10px;
-            background: rgba(20, 20, 20, 0.4);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            min-height: 80px;
+            padding: 8px;
+            min-height: 78px;
             align-items: center;
-        }
-        .hcaptcha-container .hcaptcha-placeholder {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .hcaptcha-container .hcaptcha-placeholder i {
-            font-size: 1.5rem;
-            color: var(--youtube);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
         }
         .hcaptcha-container #hcaptcha-widget {
             display: flex;
             justify-content: center;
             width: 100%;
         }
-        .hcaptcha-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .hcaptcha-status .hcaptcha-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .hcaptcha-status .hcaptcha-dot.ready { background: #4caf50; }
-        .hcaptcha-status .hcaptcha-dot.loading {
-            background: #ff9800;
-            animation: dotPulse 1s ease-in-out infinite;
-        }
-        .hcaptcha-status .hcaptcha-dot.error { background: #ff6b6b; }
-        .hcaptcha-status .hcaptcha-dot.verified {
-            background: #4caf50;
-            box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
-        }
+
         .status-bar {
             background: rgba(20, 20, 20, 0.8);
             border-radius: var(--radius-sm);
@@ -1041,7 +997,7 @@
             .subscriber-display { gap: 16px; }
             .tabs .tab-btn { padding: 10px 16px; font-size: 0.8rem; }
             .tabs .tab-btn span { display: none; }
-            .hcaptcha-container { padding: 6px; min-height: 60px; }
+            .hcaptcha-container { padding: 4px; min-height: 60px; }
             .winners-selector .winner-btn { padding: 4px 12px; font-size: 0.7rem; }
             .navbar .nav-links .nav-btn span { display: none; }
             .online-counter { font-size: 0.65rem; padding: 4px 12px; }
@@ -1089,7 +1045,7 @@
                 <i class="fab fa-youtube"></i>
                 <span>Главная</span>
             </a>
-            <div class="online-counter" id="onlineCounter">
+            <div class="online-counter">
                 <span class="online-dot"></span>
                 <span class="online-count" id="onlineCount">0</span>
                 <span>онлайн</span>
@@ -1151,18 +1107,9 @@
                     </div>
                 </div>
 
+                <!-- ===== ТОЛЬКО ВИДЖЕТ HCAPTCHA (БЕЗ ТЕКСТА) ===== -->
                 <div class="hcaptcha-container">
-                    <div id="hcaptcha-widget">
-                        <div class="hcaptcha-placeholder">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <span>Загрузка hCaptcha...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="hcaptcha-status">
-                    <span class="hcaptcha-dot loading" id="hcaptchaDot"></span>
-                    <span id="hcaptchaStatus">Ожидание проверки...</span>
+                    <div id="hcaptcha-widget"></div>
                 </div>
             </div>
 
@@ -1281,7 +1228,7 @@
         // =============================================
 
         // =============================================
-        //  ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ АВАТАРКИ С YOUTUBE
+        //  АВАТАРКИ (YouTube)
         // =============================================
         async function fetchYouTubeAvatar(channelId) {
             if (!channelId) return null;
@@ -1292,53 +1239,37 @@
                 if (!response.ok) return null;
                 const data = await response.json();
                 if (data.items && data.items.length > 0) {
-                    // Берём аватарку в максимальном качестве
                     const thumbnails = data.items[0].snippet.thumbnails;
                     return thumbnails.high?.url || thumbnails.medium?.url || thumbnails.default?.url;
                 }
                 return null;
             } catch (error) {
-                console.warn('Ошибка загрузки аватара:', error);
                 return null;
             }
         }
 
-        // =============================================
-        //  КЭШ АВАТАРОК (чтобы не грузить повторно)
-        // =============================================
         const avatarCache = new Map();
 
         async function getAvatarUrl(channelId, name) {
-            // Проверяем кэш
             if (avatarCache.has(channelId)) {
                 return avatarCache.get(channelId);
             }
-            
             let avatarUrl = null;
-            
-            // Пробуем загрузить с YouTube
             if (channelId) {
                 avatarUrl = await fetchYouTubeAvatar(channelId);
             }
-            
-            // Если не загрузилось, сохраняем null и будем использовать инициалы
             avatarCache.set(channelId, avatarUrl);
             return avatarUrl;
         }
 
-        // =============================================
-        //  ФУНКЦИЯ СОЗДАНИЯ АВАТАРКИ С РЕАЛЬНЫМ ИЗОБРАЖЕНИЕМ
-        // =============================================
         async function createAvatarElement(comment, container, size = 44, isScreenshot = false) {
             const name = comment.author || 'Аноним';
             const channelId = comment.channelId;
             const initials = getInitials(name);
             const gradient = getAvatarGradient(name);
             
-            // Очищаем контейнер
             container.innerHTML = '';
             
-            // Создаём аватар
             const avatarDiv = document.createElement('div');
             avatarDiv.className = isScreenshot ? 'sw-avatar' : 'winner-avatar';
             avatarDiv.style.width = size + 'px';
@@ -1352,7 +1283,6 @@
             avatarDiv.style.background = gradient;
             avatarDiv.style.position = 'relative';
             
-            // Инициалы (будут видны, пока не загрузится аватарка)
             const initialsSpan = document.createElement('span');
             initialsSpan.className = isScreenshot ? 'sw-initials' : 'w-initials';
             initialsSpan.textContent = initials;
@@ -1364,7 +1294,6 @@
             initialsSpan.style.zIndex = '1';
             avatarDiv.appendChild(initialsSpan);
             
-            // Пытаемся загрузить реальную аватарку
             if (channelId) {
                 const avatarUrl = await getAvatarUrl(channelId, name);
                 if (avatarUrl) {
@@ -1380,14 +1309,12 @@
                     img.style.zIndex = '0';
                     
                     img.onload = function() {
-                        // Скрываем инициалы, показываем аватарку
                         initialsSpan.style.display = 'none';
                         avatarDiv.style.background = 'transparent';
                     };
                     
                     img.onerror = function() {
-                        // Если аватарка не загрузилась, оставляем инициалы
-                        console.warn('Не удалось загрузить аватарку для:', name);
+                        // Оставляем инициалы
                     };
                     
                     avatarDiv.appendChild(img);
@@ -1395,13 +1322,6 @@
             }
             
             container.appendChild(avatarDiv);
-        }
-
-        // =============================================
-        //  ОСТАЛЬНЫЕ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        // =============================================
-        function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
 
         function getInitials(name) {
@@ -1427,7 +1347,14 @@
         }
 
         // =============================================
-        //  СЧЁТЧИК ОНЛАЙН
+        //  ФУНКЦИЯ ФОРМАТИРОВАНИЯ
+        // =============================================
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        // =============================================
+        //  ОНЛАЙН КАУНТЕР
         // =============================================
         function initOnlineCounter() {
             const key = 'sayrandomizer_online_users';
@@ -1509,22 +1436,11 @@
         });
 
         // =============================================
-        //  hCaptcha
+        //  HCAPTCHA (БЕЗ ТЕКСТА)
         // =============================================
         let hcaptchaReady = false;
         let hcaptchaToken = null;
         let hcaptchaWidgetId = null;
-        const hcaptchaDot = document.getElementById('hcaptchaDot');
-        const hcaptchaStatus = document.getElementById('hcaptchaStatus');
-
-        function updateHcaptchaStatus(status, message) {
-            if (hcaptchaDot) {
-                hcaptchaDot.className = 'hcaptcha-dot ' + status;
-            }
-            if (hcaptchaStatus) {
-                hcaptchaStatus.textContent = message;
-            }
-        }
 
         function initHcaptcha() {
             const widgetContainer = document.getElementById('hcaptcha-widget');
@@ -1539,38 +1455,20 @@
                         callback: function(token) {
                             hcaptchaToken = token;
                             hcaptchaReady = true;
-                            updateHcaptchaStatus('verified', '✅ Проверка пройдена!');
-                            hcaptchaDot.className = 'hcaptcha-dot verified';
                         },
                         'expired-callback': function() {
                             hcaptchaToken = null;
                             hcaptchaReady = false;
-                            updateHcaptchaStatus('error', '❌ Токен истёк, обновите страницу');
                         },
                         'error-callback': function() {
-                            updateHcaptchaStatus('error', '❌ Ошибка hCaptcha');
+                            // Просто игнорируем
                         }
                     });
-                    updateHcaptchaStatus('ready', '✅ Отметьте "Я не робот"');
-                    hcaptchaDot.className = 'hcaptcha-dot ready';
                 } else {
-                    widgetContainer.innerHTML = `
-                        <div class="hcaptcha-placeholder">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <span>Загрузка hCaptcha...</span>
-                        </div>
-                    `;
                     setTimeout(initHcaptcha, 1000);
                 }
             } catch (error) {
                 console.error('Ошибка инициализации hCaptcha:', error);
-                widgetContainer.innerHTML = `
-                    <div class="hcaptcha-placeholder" style="color: #ff6b6b;">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span>Ошибка загрузки hCaptcha. Обновите страницу.</span>
-                    </div>
-                `;
-                updateHcaptchaStatus('error', '❌ Ошибка загрузки');
             }
         }
 
@@ -1664,9 +1562,6 @@
             setTimeout(() => confettiContainer.innerHTML = '', 4500);
         }
 
-        // =============================================
-        //  ПОКАЗ ПОБЕДИТЕЛЕЙ (С РЕАЛЬНЫМИ АВАТАРКАМИ)
-        // =============================================
         async function showWinnersModal(winners, count) {
             lastWinners = winners;
             const now = new Date();
@@ -1684,12 +1579,11 @@
                 const name = winner.author || 'Аноним';
                 const placeEmoji = i < 10 ? placeEmojis[i] : `#${i + 1}`;
                 
-                // ===== МОДАЛКА =====
+                // Модалка
                 const item = document.createElement('div');
                 item.className = 'winner-item';
                 item.style.animationDelay = `${i * 0.1}s`;
                 
-                // Контейнер для аватара
                 const avatarContainer = document.createElement('div');
                 avatarContainer.className = 'winner-avatar';
                 
@@ -1704,15 +1598,12 @@
                     </div>
                 `;
                 
-                // Вставляем аватар
                 const placeElement = item.querySelector('.winner-place');
                 placeElement.after(avatarContainer);
                 winnersList.appendChild(item);
-                
-                // Загружаем аватарку
                 await createAvatarElement(winner, avatarContainer, 44, false);
 
-                // ===== СКРИНШОТ =====
+                // Скриншот
                 const scrItem = document.createElement('div');
                 scrItem.className = 'scr-winner-item';
                 
@@ -1730,8 +1621,6 @@
                 const scrPlaceElement = scrItem.querySelector('.sw-place');
                 scrPlaceElement.after(scrAvatarContainer);
                 scrWinnersList.appendChild(scrItem);
-                
-                // Загружаем аватарку для скриншота
                 await createAvatarElement(winner, scrAvatarContainer, 40, true);
             }
 
@@ -1745,9 +1634,6 @@
             document.body.style.overflow = '';
         }
 
-        // =============================================
-        //  КОПИРОВАНИЕ
-        // =============================================
         function copyResult() {
             if (lastWinners.length === 0) return;
             
@@ -1759,7 +1645,7 @@
                 text += `${place} ${w.author || 'Аноним'}\n   "${w.text || '—'}"\n   ❤️ ${w.likes || 0}\n\n`;
             });
             
-            text += `📅 ${formatDate(new Date())}\n\nrandomized by Say-Randomizer\nЗащищено hCaptcha`;
+            text += `📅 ${formatDate(new Date())}\n\nrandomized by Say-Randomizer`;
             
             navigator.clipboard.writeText(text).then(() => {
                 copyResultBtn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
@@ -1776,9 +1662,6 @@
             });
         }
 
-        // =============================================
-        //  СКРИНШОТ
-        // =============================================
         async function downloadScreenshot() {
             if (lastWinners.length === 0) {
                 alert('Сначала выберите победителей!');
@@ -1830,9 +1713,6 @@
             }
         }
 
-        // =============================================
-        //  YOUTUBE API
-        // =============================================
         async function fetchCommentsWithAPI(videoId) {
             const videoResponse = await fetch(
                 `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}`
@@ -1884,15 +1764,12 @@
             return { comments: allComments, videoTitle, total: allComments.length };
         }
 
-        // =============================================
-        //  ОСНОВНОЙ ОБРАБОТЧИК
-        // =============================================
         async function handleRandomize() {
             if (isLoading) return;
             
+            // Проверяем hCaptcha (без текстов)
             if (!hcaptchaReady || !hcaptchaToken) {
-                setStatus('⏳ Пожалуйста, пройдите проверку "Я не робот"', false, true);
-                updateHcaptchaStatus('loading', '⏳ Ожидание проверки...');
+                setStatus('⏳ Пожалуйста, пройдите проверку', false, true);
                 return;
             }
 
@@ -2174,9 +2051,8 @@
 
         console.log('🎯 Say-Randomizer загружен!');
         console.log('🔑 API Key:', YOUTUBE_API_KEY ? '✅ установлен' : '❌ не установлен');
-        console.log('🛡️ hCaptcha ключ:', HCAPTCHA_SITE_KEY ? '✅ установлен' : '❌ не установлен');
+        console.log('🛡️ hCaptcha виджет без текста');
         console.log('👥 Счётчик онлайн активен');
-        console.log('📸 Аватарки загружаются с YouTube');
     })();
 </script>
 
